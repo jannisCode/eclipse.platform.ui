@@ -61,6 +61,7 @@ class AccessibleToolBar extends Composite {
 	@Override
 	public void setBackground(Color color) {
 		super.setBackground(color);
+//		super.setBackground(new Color(255, 0, 0));
 		// some ToolItems (like SWT.SEPARATOR) don't easily inherit the color from the
 		// parent control
 		for (AccessibleToolItem item : accessibleToolItems) {

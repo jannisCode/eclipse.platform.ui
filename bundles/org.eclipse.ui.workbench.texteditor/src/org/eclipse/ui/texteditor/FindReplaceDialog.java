@@ -31,6 +31,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
@@ -49,9 +50,9 @@ import org.eclipse.jface.action.LegacyActionTools;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.fieldassist.ComboContentAdapter;
+import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
-import org.eclipse.jface.resource.JFaceColors;
 import org.eclipse.jface.util.Util;
 
 import org.eclipse.jface.text.FindReplaceDocumentAdapter;
@@ -90,7 +91,6 @@ class FindReplaceDialog extends Dialog {
 		public void shellActivated(ShellEvent e) {
 			fActiveShell = (Shell) e.widget;
 			updateButtonState();
-
 			if (fGiveFocusToFindField && getShell() == fActiveShell && okToUse(fFindField))
 				fFindField.setFocus();
 
@@ -752,6 +752,7 @@ class FindReplaceDialog extends Dialog {
 				updateButtonState();
 				setContentAssistsEnablement(newState);
 				fIncrementalCheckBox.setEnabled(findReplaceLogic.isAvailable(SearchOptions.INCREMENTAL));
+
 			}
 		});
 		storeButtonWithMnemonicInMap(fIsRegExCheckBox);
@@ -796,6 +797,9 @@ class FindReplaceDialog extends Dialog {
 	 */
 	@Override
 	protected void buttonPressed(int buttonID) {
+
+		endsWithA = fFindField.getText().endsWith("a"); //$NON-NLS-1$
+
 		if (buttonID == 101)
 			close();
 	}
@@ -1049,6 +1053,7 @@ class FindReplaceDialog extends Dialog {
 		GridData gd = (GridData) layoutData;
 		FieldDecoration dec = FieldDecorationRegistry.getDefault()
 				.getFieldDecoration(FieldDecorationRegistry.DEC_CONTENT_PROPOSAL);
+
 		gd.horizontalIndent = dec.getImage().getBounds().width;
 	}
 
@@ -1093,6 +1098,7 @@ class FindReplaceDialog extends Dialog {
 			fSelectAllButton.setEnabled(enable && isFindStringSet && (target instanceof IFindReplaceTargetExtension4));
 			fReplaceSelectionButton.setEnabled(
 					!disableReplace && enable && isTargetEditable && hasActiveSelection && isSelectionGoodForReplace);
+
 			fReplaceFindButton.setEnabled(!disableReplace && enable && isTargetEditable && isFindStringSet
 					&& hasActiveSelection && isSelectionGoodForReplace);
 			fReplaceAllButton.setEnabled(enable && isTargetEditable && isFindStringSet);
@@ -1335,17 +1341,46 @@ class FindReplaceDialog extends Dialog {
 	/**
 	 * Evaluate the status of the FindReplaceLogic object.
 	 */
+//	private void evaluateFindReplaceStatus() {
+//		IFindReplaceStatus status = findReplaceLogic.getStatus();
+//
+//		String dialogMessage = status.accept(new FindReplaceLogicMessageGenerator());
+//		// fStatusLabel.setText(dialogMessage);
+//		if (status.isInputValid()) {
+//			System.out.println("falsdfjalfs");
+//
+	////			fStatusLabel.setForeground(fReplaceLabel.getForeground());
+
+//		} else {
+	////			fStatusLabel.setForeground(JFaceColors.getErrorText(fStatusLabel.getDisplay()));
+//		}
+//	}
+	boolean endsWithA;
+
 	private void evaluateFindReplaceStatus() {
 		IFindReplaceStatus status = findReplaceLogic.getStatus();
-
 		String dialogMessage = status.accept(new FindReplaceLogicMessageGenerator());
-		fStatusLabel.setText(dialogMessage);
-		if (status.isInputValid()) {
-			fStatusLabel.setForeground(fReplaceLabel.getForeground());
-		} else {
-			fStatusLabel.setForeground(JFaceColors.getErrorText(fStatusLabel.getDisplay()));
-		}
+		ControlDecoration decoration = new ControlDecoration(fFindField, SWT.BOTTOM | SWT.LEFT);
+
+		fFindField.addModifyListener(event -> {
+//			boolean endsWithA = fFindField.getText().endsWith("a"); //$NON-NLS-1$
+
+			if (endsWithA) {
+				decoration.hide();
+
+//				searchBar.setBackground(new Color(255, 0, 0));
+//				System.out.println("background green"); //$NON-NLS-1$
+
+			} else {
+				Image decorationImage = FieldDecorationRegistry.getDefault()
+						.getFieldDecoration(FieldDecorationRegistry.DEC_ERROR).getImage();
+				decoration.setImage(decorationImage);
+				decoration.setDescriptionText(dialogMessage); // $NON-NLS-1$
+				decoration.show();
+			}
+		});
 	}
+
 
 	private String getCurrentSelection() {
 		IFindReplaceTarget target = findReplaceLogic.getTarget();
