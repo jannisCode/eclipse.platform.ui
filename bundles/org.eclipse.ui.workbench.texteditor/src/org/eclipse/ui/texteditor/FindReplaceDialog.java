@@ -31,6 +31,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
@@ -49,9 +50,9 @@ import org.eclipse.jface.action.LegacyActionTools;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.fieldassist.ComboContentAdapter;
+import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
-import org.eclipse.jface.resource.JFaceColors;
 import org.eclipse.jface.util.Util;
 
 import org.eclipse.jface.text.FindReplaceDocumentAdapter;
@@ -1337,14 +1338,27 @@ class FindReplaceDialog extends Dialog {
 	 */
 	private void evaluateFindReplaceStatus() {
 		IFindReplaceStatus status = findReplaceLogic.getStatus();
-
 		String dialogMessage = status.accept(new FindReplaceLogicMessageGenerator());
-		fStatusLabel.setText(dialogMessage);
-		if (status.isInputValid()) {
-			fStatusLabel.setForeground(fReplaceLabel.getForeground());
-		} else {
-			fStatusLabel.setForeground(JFaceColors.getErrorText(fStatusLabel.getDisplay()));
-		}
+		ControlDecoration decoration = new ControlDecoration(fFindField, SWT.BOTTOM | SWT.LEFT);
+
+		fFindField.addModifyListener(event -> {
+
+			boolean endsWithA = fFindField.getText().endsWith("a"); //$NON-NLS-1$
+
+			if (endsWithA) {
+				decoration.hide();
+
+//				searchBar.setBackground(new Color(255, 0, 0));
+				System.out.println("background green"); //$NON-NLS-1$
+
+			} else {
+				Image decorationImage = FieldDecorationRegistry.getDefault()
+						.getFieldDecoration(FieldDecorationRegistry.DEC_ERROR).getImage();
+				decoration.setImage(decorationImage);
+				decoration.setDescriptionText(dialogMessage); // $NON-NLS-1$
+				decoration.show();
+			}
+		});
 	}
 
 	private String getCurrentSelection() {
