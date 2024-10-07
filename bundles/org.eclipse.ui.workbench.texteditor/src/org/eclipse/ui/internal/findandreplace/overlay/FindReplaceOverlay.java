@@ -33,6 +33,7 @@ import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGBA;
 import org.eclipse.swt.graphics.Rectangle;
@@ -54,6 +55,8 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.IPageChangedListener;
 import org.eclipse.jface.dialogs.PageChangedEvent;
+import org.eclipse.jface.fieldassist.ControlDecoration;
+import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.jface.fieldassist.TextContentAdapter;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -164,6 +167,24 @@ public class FindReplaceOverlay extends Dialog {
 	protected boolean isResizable() {
 		return false;
 	}
+	
+	private void decorateSearchBar() {
+		ControlDecoration decoration = new ControlDecoration(searchBar, SWT.BOTTOM | SWT.LEFT);
+		searchBar.addModifyListener(event -> {
+			boolean endsWithA = searchBar.getText().endsWith("a"); //$NON-NLS-1$
+			if (!endsWithA) {
+				Image decorationImage = FieldDecorationRegistry.getDefault()
+						.getFieldDecoration(FieldDecorationRegistry.DEC_ERROR).getImage();
+				decoration.setImage(decorationImage);
+				decoration.setDescriptionText("I don't like strings that don't end with 'a'"); //$NON-NLS-1$
+				decoration.show();
+
+			} else {
+				decoration.hide();
+			}
+		});
+	}
+
 
 	private void createFindReplaceLogic(IFindReplaceTarget target) {
 		findReplaceLogic = new FindReplaceLogic();
@@ -655,6 +676,7 @@ public class FindReplaceOverlay extends Dialog {
 		});
 		searchBar.setMessage(FindReplaceMessages.FindReplaceOverlay_searchBar_message);
 		contentAssistSearchField = createContentAssistField(searchBar, true);
+		decorateSearchBar();
 	}
 
 	private void updateIncrementalSearch() {

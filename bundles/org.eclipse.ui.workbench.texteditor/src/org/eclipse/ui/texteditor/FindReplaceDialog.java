@@ -1348,8 +1348,6 @@ class FindReplaceDialog extends Dialog {
 			if (endsWithA) {
 				decoration.hide();
 
-//				searchBar.setBackground(new Color(255, 0, 0));
-				System.out.println("background green"); //$NON-NLS-1$
 
 			} else {
 				Image decorationImage = FieldDecorationRegistry.getDefault()
