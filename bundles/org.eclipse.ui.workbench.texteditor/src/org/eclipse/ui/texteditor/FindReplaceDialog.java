@@ -78,6 +78,8 @@ import org.eclipse.ui.internal.texteditor.SWTUtil;
  */
 class FindReplaceDialog extends Dialog {
 
+	public static final String ID_DATA_KEY = "org.eclipse.ui.texteditor.FindReplaceDialog.id"; //$NON-NLS-1$
+
 	private static final int CLOSE_BUTTON_ID = 101;
 	private IFindReplaceLogic findReplaceLogic;
 
@@ -138,12 +140,12 @@ class FindReplaceDialog extends Dialog {
 
 		@Override
 		public void modifyText(ModifyEvent e) {
+			modificationHandler.run();
 			// XXX: Workaround for Combo bug on Linux (see bug 404202 and bug 410603)
 			if (fIgnoreNextEvent) {
 				fIgnoreNextEvent = false;
 				return;
 			}
-			modificationHandler.run();
 			evaluateFindReplaceStatus();
 
 			updateButtonState(!findReplaceLogic.isActive(SearchOptions.INCREMENTAL));
@@ -274,6 +276,7 @@ class FindReplaceDialog extends Dialog {
 		shell.setText(FindReplaceMessages.FindReplace_Dialog_Title);
 
 		updateButtonState();
+		assignIDs();
 	}
 
 	/**
@@ -1356,4 +1359,23 @@ class FindReplaceDialog extends Dialog {
 			return null;
 		return target.getSelectionText();
 	}
+
+	@SuppressWarnings("nls")
+	private void assignIDs() {
+		fFindField.setData(ID_DATA_KEY, "searchInput");
+		fReplaceField.setData(ID_DATA_KEY, "replaceInput");
+		fForwardRadioButton.setData(ID_DATA_KEY, "searchForward");
+		fGlobalRadioButton.setData(ID_DATA_KEY, "globalSearch");
+		fSelectedRangeRadioButton.setData(ID_DATA_KEY, "searchInSelection");
+		fCaseCheckBox.setData(ID_DATA_KEY, "caseSensitiveSearch");
+		fWrapCheckBox.setData(ID_DATA_KEY, "wrappedSearch");
+		fWholeWordCheckBox.setData(ID_DATA_KEY, "wholeWordSearch");
+		fIncrementalCheckBox.setData(ID_DATA_KEY, "incrementalSearch");
+		fIsRegExCheckBox.setData(ID_DATA_KEY, "regExSearch");
+
+		fReplaceSelectionButton.setData(ID_DATA_KEY, "replaceOne");
+		fReplaceFindButton.setData(ID_DATA_KEY, "replaceFindOne");
+		fReplaceAllButton.setData(ID_DATA_KEY, "replaceAll");
+	}
+
 }
