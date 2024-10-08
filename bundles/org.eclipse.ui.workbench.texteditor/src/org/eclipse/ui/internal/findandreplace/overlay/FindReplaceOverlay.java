@@ -54,6 +54,7 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.IPageChangedListener;
 import org.eclipse.jface.dialogs.PageChangedEvent;
+import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.TextContentAdapter;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -73,6 +74,7 @@ import org.eclipse.ui.fieldassist.ContentAssistCommandAdapter;
 import org.eclipse.ui.internal.findandreplace.FindReplaceLogic;
 import org.eclipse.ui.internal.findandreplace.FindReplaceMessages;
 import org.eclipse.ui.internal.findandreplace.HistoryStore;
+import org.eclipse.ui.internal.findandreplace.SearchDecoration;
 import org.eclipse.ui.internal.findandreplace.SearchOptions;
 import org.eclipse.ui.internal.findandreplace.status.IFindReplaceStatus;
 import org.eclipse.ui.part.MultiPageEditorSite;
@@ -655,6 +657,8 @@ public class FindReplaceOverlay extends Dialog {
 		});
 		searchBar.setMessage(FindReplaceMessages.FindReplaceOverlay_searchBar_message);
 		contentAssistSearchField = createContentAssistField(searchBar, true);
+
+		decorate();
 	}
 
 	private void updateIncrementalSearch() {
@@ -1039,5 +1043,17 @@ public class FindReplaceOverlay extends Dialog {
 
 	private void updateContentAssistAvailability() {
 		setContentAssistsEnablement(findReplaceLogic.isAvailableAndActive(SearchOptions.REGEX));
+	}
+
+	public void decorate() {
+		ControlDecoration decoration = new ControlDecoration(searchBar, SWT.BOTTOM | SWT.LEFT);
+
+		searchBar.addModifyListener(event -> {
+
+			SearchDecoration dec = new SearchDecoration();
+			dec.decorateA(searchBar, decoration, searchBar.getText().endsWith("a")); //$NON-NLS-1$
+
+		});
+
 	}
 }
