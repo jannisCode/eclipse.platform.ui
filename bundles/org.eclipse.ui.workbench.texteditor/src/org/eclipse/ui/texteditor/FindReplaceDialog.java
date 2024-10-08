@@ -1346,10 +1346,7 @@ class FindReplaceDialog extends Dialog {
 				SearchDecoration dec = new SearchDecoration();
 				dec.decorateA(decoration, fFindField.getText());
 			}
-
-
 		});
-
 	}
 
 	private String getCurrentSelection() {
