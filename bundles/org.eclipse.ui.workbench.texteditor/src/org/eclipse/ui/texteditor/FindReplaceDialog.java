@@ -1342,9 +1342,11 @@ class FindReplaceDialog extends Dialog {
 		ControlDecoration decoration = new ControlDecoration(fFindField, SWT.BOTTOM | SWT.LEFT);
 
 		fFindField.addModifyListener(event -> {
+			if (fIsRegExCheckBox.getSelection()) {
+				SearchDecoration dec = new SearchDecoration();
+				dec.decorateA(decoration, fFindField.getText());
+			}
 
-			SearchDecoration dec = new SearchDecoration();
-			dec.decorateA(decoration, fFindField.getText());
 
 		});
 

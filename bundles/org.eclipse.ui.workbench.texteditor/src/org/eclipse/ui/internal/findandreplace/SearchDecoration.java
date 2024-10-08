@@ -27,6 +27,7 @@ import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
  *
  */
 public class SearchDecoration {
+	String message;
 
 	public void decorateA(ControlDecoration decoration, String regex) {
 
@@ -34,17 +35,27 @@ public class SearchDecoration {
 			Image decorationImage = FieldDecorationRegistry.getDefault()
 					.getFieldDecoration(FieldDecorationRegistry.DEC_ERROR).getImage();
 			decoration.setImage(decorationImage);
-			decoration.setDescriptionText("I don't like strings that don't end with 'a'"); //$NON-NLS-1$
+			decoration.setDescriptionText(message); // $NON-NLS-1$
 			decoration.show();
 		} else
 			decoration.hide();
 	}
 
+
 	private boolean isValidRegex(String string) {
 		try {
 			Pattern compile = Pattern.compile(string);
+			message = ""; //$NON-NLS-1$
 			return true;
 		} catch (PatternSyntaxException e) {
+			message = e.getLocalizedMessage();
+
+			int i = 0;
+			while (i < message.length() && "\n\r".indexOf(message.charAt(i)) == -1) { //$NON-NLS-1$
+				i++;
+			}
+
+			message = e.getLocalizedMessage().substring(0, i);
 			return false;
 		}
 	}

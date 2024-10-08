@@ -142,6 +142,7 @@ public class TextSearchPage extends DialogPage implements ISearchPage, IReplaceP
 	 */
 	private String[] fPreviousExtensions;
 	private Label fFileNamePatternDescription;
+	private ControlDecoration decoration;
 
 
 	private static class SearchPatternData {
@@ -270,7 +271,6 @@ public class TextSearchPage extends DialogPage implements ISearchPage, IReplaceP
 	private ISearchQuery newQuery() throws CoreException {
 		SearchPatternData data= getPatternData();
 		TextSearchPageInput input= new TextSearchPageInput(data.textPattern, data.isCaseSensitive, data.isRegExSearch, data.isWholeWord && !data.isRegExSearch, fSearchBinaries, createTextSearchScope());
-		System.out.println(input.getSearchText());
 		return TextSearchQueryProvider.getPreferred().createQuery(input);
 	}
 
@@ -456,7 +456,6 @@ public class TextSearchPage extends DialogPage implements ISearchPage, IReplaceP
 		decoration.hide();
 		boolean regexStatus= validateRegex();
 		getContainer().setPerformActionEnabled(regexStatus);
-
 	}
 
 	//---- Widget creation ------------------------------------------------
@@ -486,25 +485,20 @@ public class TextSearchPage extends DialogPage implements ISearchPage, IReplaceP
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(result, ISearchHelpContextIds.TEXT_SEARCH_PAGE);
 }
 
-private ControlDecoration decoration;
 private boolean validateRegex() {
-
 		if (fIsRegExCheckbox.getSelection()) {
-
 			try {
 				PatternConstructor.createPattern(fPattern.getText(), fIsCaseSensitive, true);
 				decoration.hide();
-
 			} catch (PatternSyntaxException e) {
 				String locMessage= e.getLocalizedMessage();
 				int i= 0;
 				while (i < locMessage.length() && "\n\r".indexOf(locMessage.charAt(i)) == -1) { //$NON-NLS-1$
 					i++;
 				}
-				statusMessage(true, locMessage.substring(0, i)); // only
-																		// take
-																		// first
-																		// line
+				statusMessage(true, locMessage.substring(0, i)); // only take
+																	// first
+																	// line
 
 				Image decorationImage = FieldDecorationRegistry.getDefault()
 						.getFieldDecoration(FieldDecorationRegistry.DEC_ERROR).getImage();
@@ -514,16 +508,15 @@ private boolean validateRegex() {
 
 				// System.out.println("here");
 				decoration.show();
+
 				return false;
 			}
 			statusMessage(false, ""); //$NON-NLS-1$
 			decoration.hide();
-
 		} else {
-			decoration.hide();
 			statusMessage(false, SearchMessages.SearchPage_containingText_hint);
+			decoration.hide();
 		}
-
 		return true;
 	}
 
@@ -535,6 +528,7 @@ private boolean validateRegex() {
 		label.setText(SearchMessages.SearchPage_containingText_text);
 		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
 		label.setFont(group.getFont());
+
 
 		// Pattern combo
 		fPattern= new Combo(group, SWT.SINGLE | SWT.BORDER);
@@ -551,7 +545,6 @@ private boolean validateRegex() {
 		});
 		// add some listeners for regex syntax checking
 		fPattern.addModifyListener(e -> updateOKStatus());
-
 		fPattern.setFont(group.getFont());
 		GridData data= new GridData(GridData.FILL, GridData.FILL, true, false, 1, 2);
 		data.widthHint= convertWidthInCharsToPixels(50);
@@ -589,7 +582,6 @@ private boolean validateRegex() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				fIsRegExSearch= fIsRegExCheckbox.getSelection();
-
 				updateOKStatus();
 
 				writeConfiguration();
@@ -898,7 +890,6 @@ private boolean validateRegex() {
 		// else {
 		// // use same color as another label to respect styling
 		// fStatusLabel.setForeground(fFileNamePatternDescription.getForeground());
-		//
 		// }
 	}
 

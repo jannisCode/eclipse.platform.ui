@@ -1050,10 +1050,10 @@ public class FindReplaceOverlay extends Dialog {
 		ControlDecoration decoration = new ControlDecoration(searchBar, SWT.BOTTOM | SWT.LEFT);
 
 		searchBar.addModifyListener(event -> {
-
-			SearchDecoration dec = new SearchDecoration();
-			dec.decorateA(decoration, searchBar.getText());
-
+			if (regexSearchButton.getSelection()) {
+				SearchDecoration dec = new SearchDecoration();
+				dec.decorateA(decoration, searchBar.getText());
+			}
 		});
 
 	}
