@@ -49,9 +49,9 @@ import org.eclipse.jface.action.LegacyActionTools;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.fieldassist.ComboContentAdapter;
+import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
-import org.eclipse.jface.resource.JFaceColors;
 import org.eclipse.jface.util.Util;
 
 import org.eclipse.jface.text.FindReplaceDocumentAdapter;
@@ -65,12 +65,11 @@ import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.fieldassist.ContentAssistCommandAdapter;
 import org.eclipse.ui.internal.findandreplace.FindReplaceLogic;
-import org.eclipse.ui.internal.findandreplace.FindReplaceLogicMessageGenerator;
 import org.eclipse.ui.internal.findandreplace.FindReplaceMessages;
 import org.eclipse.ui.internal.findandreplace.HistoryStore;
 import org.eclipse.ui.internal.findandreplace.IFindReplaceLogic;
+import org.eclipse.ui.internal.findandreplace.SearchDecoration;
 import org.eclipse.ui.internal.findandreplace.SearchOptions;
-import org.eclipse.ui.internal.findandreplace.status.IFindReplaceStatus;
 import org.eclipse.ui.internal.texteditor.SWTUtil;
 
 /**
@@ -1336,15 +1335,19 @@ class FindReplaceDialog extends Dialog {
 	 * Evaluate the status of the FindReplaceLogic object.
 	 */
 	private void evaluateFindReplaceStatus() {
-		IFindReplaceStatus status = findReplaceLogic.getStatus();
+		decorate();
+	}
 
-		String dialogMessage = status.accept(new FindReplaceLogicMessageGenerator());
-		fStatusLabel.setText(dialogMessage);
-		if (status.isInputValid()) {
-			fStatusLabel.setForeground(fReplaceLabel.getForeground());
-		} else {
-			fStatusLabel.setForeground(JFaceColors.getErrorText(fStatusLabel.getDisplay()));
-		}
+	public void decorate() {
+		ControlDecoration decoration = new ControlDecoration(fFindField, SWT.BOTTOM | SWT.LEFT);
+
+		fFindField.addModifyListener(event -> {
+
+			SearchDecoration dec = new SearchDecoration();
+			dec.decorateA(decoration, fFindField.getText());
+
+		});
+
 	}
 
 	private String getCurrentSelection() {
