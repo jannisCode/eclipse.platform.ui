@@ -64,11 +64,11 @@ import org.eclipse.jface.text.TextUtilities;
 
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.fieldassist.ContentAssistCommandAdapter;
+import org.eclipse.ui.internal.SearchDecoration;
 import org.eclipse.ui.internal.findandreplace.FindReplaceLogic;
 import org.eclipse.ui.internal.findandreplace.FindReplaceMessages;
 import org.eclipse.ui.internal.findandreplace.HistoryStore;
 import org.eclipse.ui.internal.findandreplace.IFindReplaceLogic;
-import org.eclipse.ui.internal.findandreplace.SearchDecoration;
 import org.eclipse.ui.internal.findandreplace.SearchOptions;
 import org.eclipse.ui.internal.texteditor.SWTUtil;
 

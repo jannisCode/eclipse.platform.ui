@@ -31,7 +31,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -56,7 +55,6 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.fieldassist.ComboContentAdapter;
 import org.eclipse.jface.fieldassist.ControlDecoration;
-import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.jface.viewers.ISelection;
 
 import org.eclipse.jface.text.FindReplaceDocumentAdapter;
@@ -70,6 +68,7 @@ import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetManager;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.fieldassist.ContentAssistCommandAdapter;
+import org.eclipse.ui.internal.SearchDecoration;
 
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 
@@ -486,10 +485,12 @@ public class TextSearchPage extends DialogPage implements ISearchPage, IReplaceP
 }
 
 private boolean validateRegex() {
+	SearchDecoration sDecoration = new SearchDecoration();
+
 		if (fIsRegExCheckbox.getSelection()) {
 			try {
 				PatternConstructor.createPattern(fPattern.getText(), fIsCaseSensitive, true);
-				decoration.hide();
+				// decoration.hide();
 			} catch (PatternSyntaxException e) {
 				String locMessage= e.getLocalizedMessage();
 				int i= 0;
@@ -499,20 +500,11 @@ private boolean validateRegex() {
 				statusMessage(true, locMessage.substring(0, i)); // only take
 																	// first
 																	// line
-
-				Image decorationImage = FieldDecorationRegistry.getDefault()
-						.getFieldDecoration(FieldDecorationRegistry.DEC_ERROR).getImage();
-				decoration.setImage(decorationImage);
-				decoration.setDescriptionText(locMessage.substring(0, i));
-				decoration.hide();
-
-				// System.out.println("here");
-				decoration.show();
-
+				sDecoration.decorateA(decoration, fPattern.getText());
 				return false;
 			}
 			statusMessage(false, ""); //$NON-NLS-1$
-			decoration.hide();
+			// decoration.hide();
 		} else {
 			statusMessage(false, SearchMessages.SearchPage_containingText_hint);
 			decoration.hide();

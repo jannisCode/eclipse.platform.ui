@@ -24,6 +24,7 @@ import org.osgi.framework.BundleContext;
  * The plug-in class for the org.eclipse.ui plug-in.
  * This class is internal to the workbench and should not be
  * referenced by clients.
+ * @since 3.207
  */
 public final class UIPlugin extends AbstractUIPlugin {
 
