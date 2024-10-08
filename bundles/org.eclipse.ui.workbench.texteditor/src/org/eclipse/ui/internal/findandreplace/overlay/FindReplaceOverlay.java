@@ -71,10 +71,10 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.fieldassist.ContentAssistCommandAdapter;
+import org.eclipse.ui.internal.SearchDecoration;
 import org.eclipse.ui.internal.findandreplace.FindReplaceLogic;
 import org.eclipse.ui.internal.findandreplace.FindReplaceMessages;
 import org.eclipse.ui.internal.findandreplace.HistoryStore;
-import org.eclipse.ui.internal.findandreplace.SearchDecoration;
 import org.eclipse.ui.internal.findandreplace.SearchOptions;
 import org.eclipse.ui.internal.findandreplace.status.IFindReplaceStatus;
 import org.eclipse.ui.part.MultiPageEditorSite;
@@ -149,7 +149,10 @@ public class FindReplaceOverlay extends Dialog {
 	private Color normalTextForegroundColor;
 	private boolean positionAtTop = true;
 	private final TargetPartVisibilityHandler targetPartVisibilityHandler;
+
+	private ControlDecoration decoration;
 	private ContentAssistCommandAdapter contentAssistSearchField, contentAssistReplaceField;
+
 
 	public FindReplaceOverlay(Shell parent, IWorkbenchPart part, IFindReplaceTarget target) {
 		super(parent);
@@ -561,6 +564,9 @@ public class FindReplaceOverlay extends Dialog {
 				.withToolTipText(FindReplaceMessages.FindReplaceOverlay_regexSearchButton_toolTip)
 				.withOperation(() -> {
 					activateInFindReplacerIf(SearchOptions.REGEX, regexSearchButton.getSelection());
+					if (!regexSearchButton.getSelection()) {
+						decoration.hide();
+					}
 					wholeWordSearchButton.setEnabled(findReplaceLogic.isAvailable(SearchOptions.WHOLE_WORD));
 					updateIncrementalSearch();
 					updateContentAssistAvailability();
@@ -633,6 +639,7 @@ public class FindReplaceOverlay extends Dialog {
 		HistoryStore searchHistory = new HistoryStore(getDialogSettings(), "searchhistory", //$NON-NLS-1$
 				HISTORY_SIZE);
 		searchBar = new HistoryTextWrapper(searchHistory, searchBarContainer, SWT.SINGLE);
+		decoration = new ControlDecoration(searchBar, SWT.BOTTOM | SWT.LEFT);
 		GridDataFactory.fillDefaults().grab(true, true).align(GridData.FILL, GridData.FILL).applyTo(searchBar);
 		searchBar.forceFocus();
 		searchBar.selectAll();
@@ -1047,13 +1054,14 @@ public class FindReplaceOverlay extends Dialog {
 	}
 
 	public void decorate() {
-		ControlDecoration decoration = new ControlDecoration(searchBar, SWT.BOTTOM | SWT.LEFT);
+//		decoration = new ControlDecoration(searchBar, SWT.BOTTOM | SWT.LEFT);
 
 		searchBar.addModifyListener(event -> {
 			if (regexSearchButton.getSelection()) {
 				SearchDecoration dec = new SearchDecoration();
 				dec.decorateA(decoration, searchBar.getText());
-			}
+			} else
+				decoration.hide();
 		});
 
 	}

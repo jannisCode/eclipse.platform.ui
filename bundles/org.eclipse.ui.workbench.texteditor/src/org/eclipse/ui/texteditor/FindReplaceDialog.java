@@ -64,11 +64,11 @@ import org.eclipse.jface.text.TextUtilities;
 
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.fieldassist.ContentAssistCommandAdapter;
+import org.eclipse.ui.internal.SearchDecoration;
 import org.eclipse.ui.internal.findandreplace.FindReplaceLogic;
 import org.eclipse.ui.internal.findandreplace.FindReplaceMessages;
 import org.eclipse.ui.internal.findandreplace.HistoryStore;
 import org.eclipse.ui.internal.findandreplace.IFindReplaceLogic;
-import org.eclipse.ui.internal.findandreplace.SearchDecoration;
 import org.eclipse.ui.internal.findandreplace.SearchOptions;
 import org.eclipse.ui.internal.texteditor.SWTUtil;
 
@@ -193,7 +193,7 @@ class FindReplaceDialog extends Dialog {
 	 * @since 3.0
 	 */
 	private boolean fGiveFocusToFindField = true;
-
+	ControlDecoration decoration;
 	/**
 	 * Holds the mnemonic/button pairs for all buttons.
 	 *
@@ -630,6 +630,8 @@ class FindReplaceDialog extends Dialog {
 		FindReplaceDocumentAdapterContentProposalProvider findProposer = new FindReplaceDocumentAdapterContentProposalProvider(
 				true);
 		fFindField = new Combo(panel, SWT.DROP_DOWN | SWT.BORDER);
+		decoration = new ControlDecoration(fFindField, SWT.BOTTOM | SWT.LEFT);
+
 		fContentAssistFindField = new ContentAssistCommandAdapter(fFindField, contentAdapter, findProposer,
 				ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS, new char[0], true);
 		setGridData(fFindField, SWT.FILL, true, SWT.CENTER, false);
@@ -746,6 +748,9 @@ class FindReplaceDialog extends Dialog {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				boolean newState = fIsRegExCheckBox.getSelection();
+				if (!newState) {
+					decoration.hide();
+				}
 				setupFindReplaceLogic();
 				storeSettings();
 				updateButtonState();
@@ -1339,12 +1344,13 @@ class FindReplaceDialog extends Dialog {
 	}
 
 	public void decorate() {
-		ControlDecoration decoration = new ControlDecoration(fFindField, SWT.BOTTOM | SWT.LEFT);
 
 		fFindField.addModifyListener(event -> {
 			if (fIsRegExCheckBox.getSelection()) {
 				SearchDecoration dec = new SearchDecoration();
 				dec.decorateA(decoration, fFindField.getText());
+			} else {
+				decoration.hide();
 			}
 		});
 	}
