@@ -575,7 +575,6 @@ private boolean validateRegex() {
 			public void widgetSelected(SelectionEvent e) {
 				fIsRegExSearch= fIsRegExCheckbox.getSelection();
 				updateOKStatus();
-
 				writeConfiguration();
 				fPatterFieldContentAssist.setEnabled(fIsRegExSearch);
 				fIsWholeWordCheckbox.setEnabled(!fIsRegExSearch);

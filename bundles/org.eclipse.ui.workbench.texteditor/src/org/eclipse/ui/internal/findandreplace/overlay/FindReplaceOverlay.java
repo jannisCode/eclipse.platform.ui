@@ -151,6 +151,8 @@ public class FindReplaceOverlay extends Dialog {
 	private final TargetPartVisibilityHandler targetPartVisibilityHandler;
 
 	private ControlDecoration decoration;
+	private SearchDecoration dec;
+
 	private ContentAssistCommandAdapter contentAssistSearchField, contentAssistReplaceField;
 
 
@@ -163,6 +165,7 @@ public class FindReplaceOverlay extends Dialog {
 		targetPart = part;
 		targetPartVisibilityHandler = new TargetPartVisibilityHandler(targetPart, this::asyncExecIfOpen, this::close,
 				this::updatePlacementAndVisibility);
+		this.dec = new SearchDecoration();
 	}
 
 	@Override
@@ -564,12 +567,14 @@ public class FindReplaceOverlay extends Dialog {
 				.withToolTipText(FindReplaceMessages.FindReplaceOverlay_regexSearchButton_toolTip)
 				.withOperation(() -> {
 					activateInFindReplacerIf(SearchOptions.REGEX, regexSearchButton.getSelection());
-					if (!regexSearchButton.getSelection()) {
-						decoration.hide();
-					}
 					wholeWordSearchButton.setEnabled(findReplaceLogic.isAvailable(SearchOptions.WHOLE_WORD));
 					updateIncrementalSearch();
 					updateContentAssistAvailability();
+					if (!regexSearchButton.getSelection()) {
+						decoration.hide();
+					} else {
+						dec.decorateA(decoration, getFindString());
+					}
 				}).withShortcuts(KeyboardShortcuts.OPTION_REGEX).build();
 		regexSearchButton.setSelection(findReplaceLogic.isActive(SearchOptions.REGEX));
 	}
@@ -1058,8 +1063,7 @@ public class FindReplaceOverlay extends Dialog {
 
 		searchBar.addModifyListener(event -> {
 			if (regexSearchButton.getSelection()) {
-				SearchDecoration dec = new SearchDecoration();
-				dec.decorateA(decoration, searchBar.getText());
+				dec.decorateA(decoration, getFindString());
 			} else
 				decoration.hide();
 		});

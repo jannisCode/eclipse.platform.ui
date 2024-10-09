@@ -193,7 +193,9 @@ class FindReplaceDialog extends Dialog {
 	 * @since 3.0
 	 */
 	private boolean fGiveFocusToFindField = true;
-	ControlDecoration decoration;
+	private ControlDecoration decoration;
+	private SearchDecoration dec = new SearchDecoration();
+
 	/**
 	 * Holds the mnemonic/button pairs for all buttons.
 	 *
@@ -750,6 +752,8 @@ class FindReplaceDialog extends Dialog {
 				boolean newState = fIsRegExCheckBox.getSelection();
 				if (!newState) {
 					decoration.hide();
+				} else {
+					dec.decorateA(decoration, getFindString());
 				}
 				setupFindReplaceLogic();
 				storeSettings();
@@ -1347,7 +1351,6 @@ class FindReplaceDialog extends Dialog {
 
 		fFindField.addModifyListener(event -> {
 			if (fIsRegExCheckBox.getSelection()) {
-				SearchDecoration dec = new SearchDecoration();
 				dec.decorateA(decoration, fFindField.getText());
 			} else {
 				decoration.hide();
