@@ -79,24 +79,38 @@ public class SearchDecoration {
 			while (j < message.length() && "\n\r".indexOf(message.charAt(j)) == -1) { //$NON-NLS-1$
 				j++;
 			}
+			int number;
 
+			try {
+				number = Integer.parseInt(message.substring(i - 2, i));
+			} catch (Exception e1) {
+				number = Integer.parseInt(message.substring(i - 1, i));
+			}
 			sBuilder.append(message.substring(0, i));
+
 			sBuilder.append(System.lineSeparator());
 			String message_two = message.substring(i + 2, j);
+			String arrowString = " <-- "; //$NON-NLS-1$
+			String m3 = message_two.substring(0, number + 1);
+			String m4 = ""; //$NON-NLS-1$
+			if (message_two.length() > number) {
+				m4 = message_two.substring(number + 1, message_two.length());
 
-			sBuilder.append(message_two);
-
-			sBuilder.append(System.lineSeparator());
-
-			for (int x = 0; x < message_two.length(); x++) {
-				if (x % 3 == 0) {
-					sBuilder.append(" "); //$NON-NLS-1$
-				} else {
-					sBuilder.append("  "); //$NON-NLS-1$
-				}
 			}
 
-			sBuilder.append("^"); //$NON-NLS-1$
+			sBuilder.append(m3 + arrowString + m4);
+
+//			sBuilder.append(System.lineSeparator());
+//
+//			for (int x = 0; x < message_two.length(); x++) {
+//				if (x % 3 == 0) {
+//					sBuilder.append(" "); //$NON-NLS-1$
+//				} else {
+//					sBuilder.append("  "); //$NON-NLS-1$
+//				}
+//			}
+
+//			sBuilder.append("^"); //$NON-NLS-1$
 			return sBuilder.toString();
 		}
 	}
