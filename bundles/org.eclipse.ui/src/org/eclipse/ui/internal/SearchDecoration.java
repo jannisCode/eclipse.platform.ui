@@ -68,14 +68,36 @@ public class SearchDecoration {
 			return ""; //$NON-NLS-1$
 		} catch (PatternSyntaxException e) {
 			String message = e.getLocalizedMessage();
+			StringBuilder sBuilder = new StringBuilder();
 
 			// Only preserve the first line of the original error message.
 			int i = 0;
 			while (i < message.length() && "\n\r".indexOf(message.charAt(i)) == -1) { //$NON-NLS-1$
 				i++;
 			}
+			int j = i + 2;
+			while (j < message.length() && "\n\r".indexOf(message.charAt(j)) == -1) { //$NON-NLS-1$
+				j++;
+			}
 
-			return message.substring(0, i);
+			sBuilder.append(message.substring(0, i));
+			sBuilder.append(System.lineSeparator());
+			String message_two = message.substring(i + 2, j);
+
+			sBuilder.append(message_two);
+
+			sBuilder.append(System.lineSeparator());
+
+			for (int x = 0; x < message_two.length(); x++) {
+				if (x % 3 == 0) {
+					sBuilder.append(" "); //$NON-NLS-1$
+				} else {
+					sBuilder.append("  "); //$NON-NLS-1$
+				}
+			}
+
+			sBuilder.append("^"); //$NON-NLS-1$
+			return sBuilder.toString();
 		}
 	}
 
