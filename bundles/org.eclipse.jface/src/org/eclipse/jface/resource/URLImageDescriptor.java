@@ -53,6 +53,7 @@ class URLImageDescriptor extends ImageDescriptor implements IAdaptable {
 
 		public URLImageFileNameProvider(String url) {
 			this.url = url;
+			System.out.println(url);
 		}
 
 		@Override
@@ -106,6 +107,8 @@ class URLImageDescriptor extends ImageDescriptor implements IAdaptable {
 	private static final String FILE_PROTOCOL = "file";  //$NON-NLS-1$
 
 	private final String url;
+	private final String defaultURL;
+	private String theme = "modern"; //$NON-NLS-1$
 
 	/**
 	 * Creates a new URLImageDescriptor.
@@ -114,7 +117,16 @@ class URLImageDescriptor extends ImageDescriptor implements IAdaptable {
 	 */
 	URLImageDescriptor(URL url) {
 		super(true);
-		this.url = url.toExternalForm();
+		this.defaultURL = url.toExternalForm();
+		this.url = url.toExternalForm().replace("icons/", String.format("icons/%s/", theme)); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	public void setTheme(String s) {
+		this.theme = s;
+	}
+
+	public String getTheme() {
+		return this.theme;
 	}
 
 	@Override
@@ -229,6 +241,7 @@ class URLImageDescriptor extends ImageDescriptor implements IAdaptable {
 
 	private static URL getxURL(URL url, int zoom) {
 		String path = url.getPath();
+		System.out.println(path);
 		int dot = path.lastIndexOf('.');
 		if (dot != -1 && (zoom == 150 || zoom == 200)) {
 			String lead = path.substring(0, dot);
@@ -265,9 +278,15 @@ class URLImageDescriptor extends ImageDescriptor implements IAdaptable {
 			}
 
 			URL platformURL = FileLocator.find(url);
+			if (platformURL == null) {
+				url = new URL(url.toExternalForm().replace("modern/", "")); //$NON-NLS-1$ //$NON-NLS-2$
+				platformURL = FileLocator.find(url);
+			}
+
 			if (platformURL != null) {
 				url = platformURL;
 			}
+
 			URL locatedURL = FileLocator.toFileURL(url);
 			if (FILE_PROTOCOL.equalsIgnoreCase(locatedURL.getProtocol())) {
 				String filePath = IPath.fromOSString(locatedURL.getPath()).toOSString();
@@ -306,6 +325,11 @@ class URLImageDescriptor extends ImageDescriptor implements IAdaptable {
 						return new Image(device, new URLImageFileNameProvider(url));
 					} catch (SWTException | IllegalArgumentException exception) {
 						// If we fail fall back to the slower input stream method.
+						try {
+							return new Image(device, new URLImageFileNameProvider(defaultURL));
+						} catch (Exception e) {
+							// TODO: handle exception
+						}
 					}
 				}
 
@@ -316,6 +340,11 @@ class URLImageDescriptor extends ImageDescriptor implements IAdaptable {
 					// see Image#equals
 					image = new Image(device, new URLImageDataProvider(url));
 				} catch (SWTException e) {
+					try {
+						image = new Image(device, new URLImageDataProvider(defaultURL));
+					} catch (Exception e2) {
+						// TODO: handle exception
+					}
 					if (e.code != SWT.ERROR_INVALID_IMAGE) {
 						throw e;
 					}
