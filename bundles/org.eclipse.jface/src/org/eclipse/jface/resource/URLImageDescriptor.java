@@ -31,6 +31,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.internal.InternalPolicy;
+import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.jface.util.Policy;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
@@ -45,7 +46,7 @@ import org.eclipse.swt.graphics.ImageFileNameProvider;
  * public API. Use ImageDescriptor#createFromURL to create a descriptor that
  * uses a URL.
  */
-class URLImageDescriptor extends ImageDescriptor implements IAdaptable {
+class URLIconImageDescriptor extends ImageDescriptor implements IAdaptable {
 
 	private static class URLImageFileNameProvider implements ImageFileNameProvider {
 
@@ -53,7 +54,7 @@ class URLImageDescriptor extends ImageDescriptor implements IAdaptable {
 
 		public URLImageFileNameProvider(String url) {
 			this.url = url;
-			System.out.println(url);
+//			this.url = "platform:/plugin/IconsPlugin2/modern/org.eclipse.debug.ui/icons/full/dlcl16/constant_co.png";
 		}
 
 		@Override
@@ -94,7 +95,7 @@ class URLImageDescriptor extends ImageDescriptor implements IAdaptable {
 
 		@Override
 		public ImageData getImageData(int zoom) {
-			return URLImageDescriptor.getImageData(url, zoom);
+			return URLIconImageDescriptor.getImageData(url, zoom);
 		}
 
 	}
@@ -104,37 +105,123 @@ class URLImageDescriptor extends ImageDescriptor implements IAdaptable {
 	/**
 	 * Constant for the file protocol for optimized loading
 	 */
-	private static final String FILE_PROTOCOL = "file";  //$NON-NLS-1$
+	private static final String FILE_PROTOCOL = "file"; //$NON-NLS-1$
 
-	private final String url;
-	private final String defaultURL;
-	private String theme = "modern"; //$NON-NLS-1$
+	private String url;
+	private String pluginName = JFacePreferences.PLUGIN_STRING_FOR_ICONS + "/"; // slash after last //$NON-NLS-1$
+																				// character!
+	private String themeName = JFacePreferences.ICON_THEME + "/"; //$NON-NLS-1$
 
 	/**
 	 * Creates a new URLImageDescriptor.
 	 *
 	 * @param url The URL to load the image from. Must be non-null.
 	 */
-	URLImageDescriptor(URL url) {
+	/**
+	 *
+	 */
+	public URLIconImageDescriptor(URL url) {
+		// TODO Auto-generated constructor stub
+
 		super(true);
-		this.defaultURL = url.toExternalForm();
-		this.url = url.toExternalForm().replace("icons/", String.format("icons/%s/", theme)); //$NON-NLS-1$ //$NON-NLS-2$
+//		System.out.println("this url" + url);
+		boolean isBundleentry = url.getProtocol().equals("bundleentry"); //$NON-NLS-1$
+		if (isBundleentry) {
+			url = getBundleentryURL(url);
+			this.url = url.toExternalForm();
+			return;
+
+		}
+		String givenURL = url.toExternalForm();
+
+		System.out.println(themeName);
+		String editedURL = givenURL.replace("/icons", "/" + themeName + "icons"); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.println(editedURL);
+//		String editedURL = givenURL.replace("plugin/", "plugin/" + themeName); //$NON-NLS-1$ //$NON-NLS-2$
+//		System.out.println("edited url " + editedURL);
+//		URL url3j = null;
+		try {
+			String e2;
+//			if (!isBundleentry) {
+			if (true) {
+				e2 = editedURL.replace("$nl$/", ""); //$NON-NLS-1$ //$NON-NLS-2$
+			} else {
+				e2 = editedURL;
+			}
+			URL u = new URL(e2);
+			boolean fileExists;
+			try (InputStream stream = u.openStream()) {
+				fileExists = true;
+				url = u;
+			} catch (Exception e) {
+				fileExists = false;
+			}
+			System.out.println("File exists? : " + fileExists); //$NON-NLS-1$
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+		}
+
+		this.url = url.toExternalForm();
+
 	}
 
-	public void setTheme(String s) {
-		this.theme = s;
+	private URL getBundleentryURL(URL url) {
+		URL url1 = null;
+		String urlString = url.toExternalForm();
+		String replacedString = urlString.replace("icons", "modern/icons"); //$NON-NLS-1$ //$NON-NLS-2$
+		try {
+			url1 = new URL(replacedString);
+			url1.openStream();
+			url = url1;
+		} catch (Exception e) {
+		}
+		return url;
 	}
 
-	public String getTheme() {
-		return this.theme;
-	}
+//	private URL getBundleentryURL(URL url) {
+//		URL url1 = null;
+//		String url2 = null;
+//		System.out.println("URL = " + url);
+//		try {
+//			url1 = FileLocator.toFileURL(url);
+//			System.out.println("URL 1:  " + url1);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		String[] splitStrings = url1.toExternalForm().split("/"); //$NON-NLS-1$
+//		int iconFolderIndex = -1;
+//		for (int i = 0; i < splitStrings.length; i++) {
+//			if (splitStrings[i].equals("icons")) //$NON-NLS-1$
+//				iconFolderIndex = i;
+//		}
+//		if (iconFolderIndex != -1) {
+//			String urlString = ""; //$NON-NLS-1$
+//			for (int u = iconFolderIndex - 1; u < splitStrings.length; u++) {
+//				urlString = urlString + "/" + splitStrings[u]; //$NON-NLS-1$
+//			}
+//			url2 = urlString;
+//
+//			String u = "platform:/plugin" + url2; //$NON-NLS-1$
+//			try {
+//				url = new URL(u);
+//			} catch (MalformedURLException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//			// System.out.println(url);
+//		}
+	////		System.out.println("resulting URL: " + url);
+//		return url;
+//
+//	}
 
 	@Override
 	public boolean equals(Object o) {
-		if (!(o instanceof URLImageDescriptor)) {
+		if (!(o instanceof URLIconImageDescriptor)) {
 			return false;
 		}
-		return ((URLImageDescriptor) o).url.equals(this.url);
+		return ((URLIconImageDescriptor) o).url.equals(this.url);
 	}
 
 	@Deprecated
@@ -190,8 +277,8 @@ class URLImageDescriptor extends ImageDescriptor implements IAdaptable {
 	}
 
 	/**
-	 * Returns a stream on the image contents. Returns null if a stream could
-	 * not be opened.
+	 * Returns a stream on the image contents. Returns null if a stream could not be
+	 * opened.
 	 *
 	 * @return the stream for loading the data
 	 */
@@ -231,8 +318,8 @@ class URLImageDescriptor extends ImageDescriptor implements IAdaptable {
 
 	/**
 	 * The <code>URLImageDescriptor</code> implementation of this
-	 * <code>Object</code> method returns a string representation of this
-	 * object which is suitable only for debugging.
+	 * <code>Object</code> method returns a string representation of this object
+	 * which is suitable only for debugging.
 	 */
 	@Override
 	public String toString() {
@@ -241,7 +328,7 @@ class URLImageDescriptor extends ImageDescriptor implements IAdaptable {
 
 	private static URL getxURL(URL url, int zoom) {
 		String path = url.getPath();
-		System.out.println(path);
+		System.out.println(url.toExternalForm());
 		int dot = path.lastIndexOf('.');
 		if (dot != -1 && (zoom == 150 || zoom == 200)) {
 			String lead = path.substring(0, dot);
@@ -276,18 +363,16 @@ class URLImageDescriptor extends ImageDescriptor implements IAdaptable {
 					return IPath.fromOSString(url.getFile()).toOSString();
 				return null;
 			}
-
+//			System.out.println("Platform URL = " + url.toExternalForm());
 			URL platformURL = FileLocator.find(url);
-			if (platformURL == null) {
-				url = new URL(url.toExternalForm().replace("modern/", "")); //$NON-NLS-1$ //$NON-NLS-2$
-				platformURL = FileLocator.find(url);
-			}
-
 			if (platformURL != null) {
 				url = platformURL;
 			}
-
+//			System.out.println("Located URL = " + url.toExternalForm());
 			URL locatedURL = FileLocator.toFileURL(url);
+//			if (url.getProtocol().equals("bundleentry")) { //$NON-NLS-1$
+//				System.out.println("resulting URL " + locatedURL);
+//			}
 			if (FILE_PROTOCOL.equalsIgnoreCase(locatedURL.getProtocol())) {
 				String filePath = IPath.fromOSString(locatedURL.getPath()).toOSString();
 				if (Files.exists(Path.of(filePath))) {
@@ -324,9 +409,9 @@ class URLImageDescriptor extends ImageDescriptor implements IAdaptable {
 						// see Image#equals
 						return new Image(device, new URLImageFileNameProvider(url));
 					} catch (SWTException | IllegalArgumentException exception) {
-						// If we fail fall back to the slower input stream method.
 						try {
-							return new Image(device, new URLImageFileNameProvider(defaultURL));
+							return new Image(device, new URLImageFileNameProvider(url));
+
 						} catch (Exception e) {
 							// TODO: handle exception
 						}
@@ -340,11 +425,6 @@ class URLImageDescriptor extends ImageDescriptor implements IAdaptable {
 					// see Image#equals
 					image = new Image(device, new URLImageDataProvider(url));
 				} catch (SWTException e) {
-					try {
-						image = new Image(device, new URLImageDataProvider(defaultURL));
-					} catch (Exception e2) {
-						// TODO: handle exception
-					}
 					if (e.code != SWT.ERROR_INVALID_IMAGE) {
 						throw e;
 					}
@@ -355,6 +435,7 @@ class URLImageDescriptor extends ImageDescriptor implements IAdaptable {
 					try {
 						image = new Image(device, DEFAULT_IMAGE_DATA);
 					} catch (SWTException nextException) {
+
 						return null;
 					}
 				}
@@ -382,12 +463,14 @@ class URLImageDescriptor extends ImageDescriptor implements IAdaptable {
 			if (InternalPolicy.DEBUG_TRACE_URL_IMAGE_DESCRIPTOR) {
 				long time = System.nanoTime() - start;
 				cumulativeTime += time;
-				System.out.println("Accumulated time (ms) to load URLImageDescriptor images: " + cumulativeTime / 1000000); //$NON-NLS-1$
+				System.out.println(
+						"Accumulated time (ms) to load URLImageDescriptor images: " + cumulativeTime / 1000000); //$NON-NLS-1$
 			}
 		}
 	}
 
 	private static URL getURL(String urlString) {
+//		System.out.println(urlString);
 		URL result = null;
 		try {
 			result = new URL(urlString);
